@@ -1,0 +1,42 @@
+[
+  {
+    "name": "usgs",
+    "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson",
+    "retrieved_at": "2026-10-16T08:09:21.854536+00:00",
+    "bytes": 277267,
+    "sha256": "0798950a6e246d8b07025a1d257f09d9a9c115f119e1f9acd0c2a9b3be613dbf",
+    "features": 392,
+    "status": "acquired",
+    "generated": 1792138158000
+  },
+  {
+    "name": "weather-KSFO",
+    "url": "https://api.weather.gov/stations/KSFO/observations?limit=48",
+    "retrieved_at": "2026-10-16T08:09:22.032685+00:00",
+    "bytes": 191427,
+    "sha256": "e6be92e3efd8eb946aef2335c96e0c35c3178ca902a3fde311cd1747a15fe181",
+    "features": 48,
+    "status": "acquired",
+    "latest_observation": "2026-10-16T07:50:00+00:00"
+  },
+  {
+    "name": "weather-KSEA",
+    "url": "https://api.weather.gov/stations/KSEA/observations?limit=48",
+    "retrieved_at": "2026-10-16T08:09:22.288004+00:00",
+    "bytes": 183333,
+    "sha256": "fcb2c5b84bd19c8d91ebc8dbcd09ecf42fe077f4f5a111ad1904ed8f7ada0874",
+    "features": 48,
+    "status": "acquired",
+    "latest_observation": "2026-10-16T07:50:00+00:00"
+  },
+  {
+    "name": "weather-KNYC",
+    "url": "https://api.weather.gov/stations/KNYC/observations?limit=48",
+    "retrieved_at": "2026-10-16T08:09:22.524617+00:00",
+    "bytes": 203823,
+    "sha256": "e9e5d0effa6c580ec4e8caa75eb8cb00a402f85053a85da25d456081b2541c8a",
+    "features": 48,
+    "status": "acquired",
+    "latest_observation": "2026-10-16T06:51:00+00:00"
+  }
+]

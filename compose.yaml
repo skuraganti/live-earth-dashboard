@@ -1,0 +1,39 @@
+name: portfolio-release-2021-fieldglass
+services:
+  app:
+    build: .
+    image: portfolio-release-2021-fieldglass:local
+    ports:
+      - "127.0.0.1:${EARTH_PORT:-8281}:8000"
+    environment:
+      EARTH_DB: /state/fieldglass.sqlite
+      EARTH_SEED_DIR: /seed
+      EARTH_AUTO_POLL: "${EARTH_AUTO_POLL:-1}"
+      EARTH_POLL_SECONDS: "${EARTH_POLL_SECONDS:-300}"
+    volumes:
+      - fieldglass-state:/state
+      - ./data/raw:/seed:ro
+    networks:
+      - fieldglass
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 1.0
+    restart: unless-stopped
+    stop_grace_period: 60s
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 4s
+      retries: 5
+      start_period: 8s
+networks:
+  fieldglass:
+    name: portfolio-release-2021-fieldglass-network
+volumes:
+  fieldglass-state:
+    name: portfolio-release-2021-fieldglass-state
