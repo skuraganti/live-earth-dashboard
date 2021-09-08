@@ -6913,7 +6913,5 @@
     }
   ],
   "limit": "Event-time playback of captured revisions; not historical as-known state or hazard advice.",
-  "theme_year": 2021,
-  "developed_at": "2026-10-16",
-  "repository": "https://github.com/skuraganti/2021-live-earth-dashboard"
+  "repository": "https://github.com/skuraganti/live-earth-dashboard"
 }

@@ -14,7 +14,7 @@ function renderWeather() { const root = $('weather'); clear(root); for (const ob
     card.className = 'disclosure';
     el('strong', obs.station, card);
     el('p', `${obs.description || 'Observation unavailable'} · ${obs.temperature?.value == null ? 'Temperature unavailable' : `${obs.temperature.value} °C`} · ${obs.wind_speed?.value == null ? 'Wind unavailable' : `${obs.wind_speed.value} km/h`}`, card);
-    el('small', `Captured ${fmtTime(Date.parse(obs.time))}; null values remain unavailable.`, card);
+    el('small', `Observed ${fmtTime(Date.parse(obs.time))}; null values remain unavailable.`, card);
 } }
 function drawMap() { const svg = $('map'); clear(svg); const ns = 'http://www.w3.org/2000/svg', makeSvg = (tag, attrs) => { const n = document.createElementNS(ns, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, String(v))); svg.append(n); return n; }; for (let lon = -180; lon <= 180; lon += 60) {
     const x = (lon + 180) * 2;
@@ -66,7 +66,7 @@ fetch('./demo-data.json').then(response => { if (!response.ok)
     throw Error('Fixture unavailable'); return response.json(); }).then(json => { if (!Array.isArray(json.events) || !Array.isArray(json.weather) || !Array.isArray(json.sources) || !Number.isFinite(json.generated))
     throw Error('Unexpected fixture structure'); data = json; quakes = json.events.filter(e => e.type === 'earthquake' && [e.time, e.longitude, e.latitude, e.magnitude].every(numeric) && Math.abs(e.longitude) <= 180 && Math.abs(e.latitude) <= 90); if (!quakes.length)
     throw Error('No valid earthquake observations'); const attribution = $('source-attribution'); clear(attribution); json.sources.forEach((source, index) => { if (index)
-    attribution.append(document.createTextNode(' · ')); const link = el('a', source.name, attribution); link.href = source.url; link.target = '_blank'; link.rel = 'noreferrer'; el('span', ` · captured ${source.retrieved_at}; SHA-256 ${source.sha256}`, attribution); }); const age = Math.max(0, Date.now() - json.generated); $('status').textContent = `Captured ${fmtTime(json.generated)} · source age ${Math.floor(age / 3600000)} h ${Math.floor(age % 3600000 / 60000)} min · ${json.events.length} records, including ${json.events.length - quakes.length} non-earthquake event. No live refresh.`; renderWeather(); renderEvents(); }).catch(error => { $('status').textContent = `Cannot load frozen snapshot: ${error.message}. Reload to try again.`; $('status').className = 'status error'; });
+    attribution.append(document.createTextNode(' · ')); const link = el('a', source.name, attribution); link.href = source.url; link.target = '_blank'; link.rel = 'noreferrer'; el('span', ` · SHA-256 ${source.sha256}`, attribution); }); const age = Math.max(0, Date.now() - json.generated); $('status').textContent = `Frozen snapshot · source age ${Math.floor(age / 3600000)} h ${Math.floor(age % 3600000 / 60000)} min · ${json.events.length} records, including ${json.events.length - quakes.length} non-earthquake event. No live refresh.`; renderWeather(); renderEvents(); }).catch(error => { $('status').textContent = `Cannot load frozen snapshot: ${error.message}. Reload to try again.`; $('status').className = 'status error'; });
 function labelScrollableContent() {
     document.querySelectorAll('.scroll, pre').forEach(node => {
         node.tabIndex = 0;
