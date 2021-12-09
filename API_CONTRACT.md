@@ -1,4 +1,4 @@
-# Lead/worker interface contract
+# API and integration contract
 
 Base /api, app.main:app, GET /health. POST/DELETE/PATCH enforce loopback trusted Host and same-origin browser requests; no-origin CLI allowed. API responses plain JSON. All epoch timestamps in **milliseconds UTC** for UI, except explicit ISO metadata; coordinates latitude/longitude in degrees. Reject nonfinite numeric input.
 

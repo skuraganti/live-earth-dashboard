@@ -44,3 +44,15 @@ sh stack.sh up
 Local URL: http://127.0.0.1:8281. The container limit is 256 MiB for the app, plus Docker and host process overhead. Tested one portfolio stack at a time on an ARM Mac with 8 GiB host RAM and a 2 GiB Docker VM. No GPU. Defaults use independent named volumes and localhost bindings. Stack stop retains state; no unrelated services are managed.
 
 For Pages: `python3 -m http.server 8008 --bind 127.0.0.1 --directory docs`. With optional agent-browser 0.38.1 installed, run `sh scripts/check-pages.sh`; assertions are in `tests/pages-smoke.js`. No browser automation package is shipped to Pages.
+
+## Freshness, radius and browser recovery maintenance
+
+- **106 native tests passed** with Python 3.12.14 and Node 24.20.0. Ruff passed. The existing TestClient deprecation warning remains.
+- Offline regressions check stale provider time versus successful retrieval, failure retention, true database close/reopen with watches and acknowledgements, freshness recovery, alert deduplication, inclusive radius thresholds, antimeridian/polar distances and invalid/nonfinite inputs.
+- Browser-script tests use a stub DOM and stub responses; they are separate from Chrome checks. They reproduce the null-magnitude filter, refresh-error and missing alert-poll issues. A deferred-response regression first failed, then passed after response ordering protected newer acknowledgment state.
+- The patched Docker image built and became healthy. A single four-source real refresh succeeded for USGS and all three NWS stations, reporting four fresh source times. Immediate repeat refresh returned 429; replay created no alerts. No automatic polling was enabled during this check.
+- Chrome observed an API-added watch and its earthquake alerts appear through the normal visible-page 30-second read timer, without reload or another publisher refresh. The final loaded view showed four fresh sources, the saved watch, an acknowledged alert and 427 All reported events.
+- Final restart compared the exact saved watches, 99 alerts and snapshot metadata, which remained unchanged. There were 427 stored seismic events and three latest station observations. The served script matched the reviewed host source.
+- The local and Pages walkthroughs distinguish saved cache, genuine feed refresh, event-time replay and simulated test failures. Freshness never implies a nonnull reading; the observed current KSFO temperature was missing.
+
+The forecast and hazard-warning use cases remain out of scope. Radius calculations use a spherical Earth approximation. Source availability and event counts change over time; these observations do not guarantee later publisher availability or establish official warning coverage.

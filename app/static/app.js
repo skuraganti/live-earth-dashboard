@@ -1,6 +1,6 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const ui = {cutoff: null, minMag: 2.5, range: null, request: 0, playing: null, events: [], watches: []};
+const ui = {cutoff: null, minMag: 2.5, range: null, request: 0, evidenceRequest: 0, playing: null, events: [], watches: []};
 const time = value => { if (value === null || value === undefined || value === '') return 'Not available'; const date = new Date(value); return Number.isNaN(date.valueOf()) ? 'Invalid source timestamp' : date.toISOString().replace('T', ' ').slice(0, 19) + ' UTC'; };
 const numeric = (value, places = 1) => typeof value === 'number' && Number.isFinite(value) ? value.toFixed(places) : 'Missing';
 const element = (tag, text, className) => { const result = document.createElement(tag); if (text !== undefined) result.textContent = text; if (className) result.className = className; return result; };
@@ -10,7 +10,8 @@ function sourceLink(url) { const allowed = /^https:\/\/(earthquake\.usgs\.gov|ap
 async function api(path, method = 'GET', data) {
   const options = {method}; if (data !== undefined) { options.headers = {'Content-Type': 'application/json'}; options.body = JSON.stringify(data); }
   const response = await fetch('/api' + path, options); const body = await response.json();
-  if (!response.ok) throw new Error(typeof body.detail === 'string' ? body.detail : 'Local request failed (' + response.status + ').');
+  const reason = typeof body.error === 'string' ? body.error : body.detail; // this API returns {error}
+  if (!response.ok) throw new Error(typeof reason === 'string' ? reason : 'Local request failed (' + response.status + ').');
   return body;
 }
 let map, earthquakes, stations, watchRings;
@@ -60,12 +61,16 @@ function renderState(data) {
   if (!(data.weather || []).length) $('weather').append(element('p', 'No captured station report at or before this cutoff. Weather coverage is shorter than the earthquake catalog.', 'muted'));
 }
 async function loadState() {
-  const sequence = ++ui.request, params = new URLSearchParams({min_mag: ui.minMag}); if (ui.cutoff !== null) params.set('until', Math.round(ui.cutoff));
+  // "All reported" (-2) sends no magnitude filter, so events with a null magnitude stay listed.
+  const sequence = ++ui.request, params = new URLSearchParams(); if (ui.minMag > -2) params.set('min_mag', ui.minMag); if (ui.cutoff !== null) params.set('until', Math.round(ui.cutoff));
   const data = await api('/state?' + params); if (sequence !== ui.request) return; renderState(data);
 }
 function fitEvents() { if (!map) return; if (ui.events.length) map.fitBounds(ui.events.map(event => [event.lat, event.lon]), {padding: [25, 25], maxZoom: 6, animate: false}); else map.setView([22, 0], 2); }
 async function loadLocalEvidence() {
-  const [watches, alerts, snapshots] = await Promise.all([api('/watches'), api('/alerts'), api('/snapshots')]); ui.watches = watches;
+  const sequence = ++ui.evidenceRequest;
+  const [watches, alerts, snapshots] = await Promise.all([api('/watches'), api('/alerts'), api('/snapshots')]);
+  if (sequence !== ui.evidenceRequest) return;
+  ui.watches = watches;
   watchRings?.clearLayers(); $('watches').replaceChildren(); $('alerts').replaceChildren(); $('snapshots').replaceChildren();
   for (const watch of watches) {
     const row = element('div', undefined, 'record'); row.append(element('strong', watch.name), element('small', `${watch.lat}, ${watch.lon} · ${watch.radius_km} km · M≥${watch.min_mag}`));
@@ -105,4 +110,5 @@ $('watch-form').addEventListener('submit', async event => {
   try { await api('/watches', 'POST', watch); await loadLocalEvidence(); notice('Local watch saved; recent fresh evidence evaluated. Replay requests do not create alerts.'); } catch (error) { notice(error.message, true); } finally { submit.disabled = false; }
 });
 Promise.all([loadState(), loadLocalEvidence()]).catch(error => notice('Local observations unavailable: ' + error.message, true));
-setInterval(() => { if (document.visibilityState === 'visible' && ui.cutoff === null) loadState().catch(error => notice('Notebook status could not refresh: ' + error.message, true)); }, 30000);
+// Also reload watches/alerts: the background poller can create alerts between page loads.
+setInterval(() => { if (document.visibilityState === 'visible' && ui.cutoff === null) Promise.all([loadState(), loadLocalEvidence()]).catch(error => notice('Notebook status could not refresh: ' + error.message, true)); }, 30000);
