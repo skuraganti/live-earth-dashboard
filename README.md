@@ -2,11 +2,11 @@
 
 **[Open the GitHub Pages browser demo](https://skuraganti.github.io/live-earth-dashboard/)** · [Architecture](ARCHITECTURE.md) · [Data sources](DATA_SOURCES.md) · [Verification](VERIFICATION.md)
 
-Genuine USGS/NWS ingestion, map and event-time playback, radius watches, deduplication and source-freshness monitoring.
+Fieldglass brings USGS/NWS reports onto a map. Play events back by event time, watch locations within a radius, and check whether each source is fresh. Ingestion deduplicates repeated reports.
 
 ## Two ways to explore
 
-The **Pages site** is a self-contained browser demonstration over a frozen USGS/NWS capture, with relative assets and no backend or credentials. Its radius tool only filters that capture and never alerts ([docs/DEMO.md](docs/DEMO.md)). The repository also contains the **full Python/Docker application**, which can refresh the live feeds, track source freshness and raise deduplicated watch alerts ([DEMO.md](DEMO.md)). Pages cannot run the backend or poller.
+Explore a frozen USGS/NWS capture on the **Pages site**. It runs in the browser with relative assets and no backend or credentials. Its radius tool filters the capture without creating alerts ([docs/DEMO.md](docs/DEMO.md)). Run the **full Python/Docker application** to refresh live feeds, monitor source freshness and create deduplicated watch alerts ([DEMO.md](DEMO.md)). Pages cannot run the backend or poller.
 
 ## Run the full application locally
 
@@ -18,9 +18,9 @@ uv run python scripts/bootstrap.py
 sh stack.sh up
 ```
 
-Open **http://127.0.0.1:8281**. Stop with `sh stack.sh stop`; this retains this repository's independent named volume. Helpers honor your current Docker context or explicitly supplied `DOCKER_HOST`; they do not select a personal machine profile. Images/networks/volumes are uniquely named `portfolio-release-*`, keeping the original development stacks separate. Host ports bind to127.0.0.1.
+Open **http://127.0.0.1:8281**. To stop the app, use `sh stack.sh stop`; this keeps the repository's own named volume. The helpers use the current Docker context or an explicit `DOCKER_HOST`, without choosing a personal machine profile. Images, networks and volumes use unique `portfolio-release-*` names, separate from the original development stacks. Host ports bind to 127.0.0.1.
 
-By default the stack polls the four public feeds every 300 seconds (`EARTH_AUTO_POLL=1`, `EARTH_POLL_SECONDS`). To use the saved capture/cache without automatic feed polling with no network requests, start it with `EARTH_AUTO_POLL=0 sh stack.sh up`. [DEMO.md](DEMO.md) walks through both modes.
+The default stack polls four public feeds every 300 seconds (`EARTH_AUTO_POLL=1`, `EARTH_POLL_SECONDS`). To use the saved capture/cache without automatic polling or network requests, start it with `EARTH_AUTO_POLL=0 sh stack.sh up`. [DEMO.md](DEMO.md) walks through both modes.
 
 ## Verify
 
